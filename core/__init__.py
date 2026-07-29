@@ -4,6 +4,7 @@ from .engine import CoreEngine
 from .events import EventBus
 from .logger import get_logger
 from .module_manager import BaseModule, ModuleManager
+from .scheduler import Scheduler
 from .service_registry import ServiceRegistry
 from .startup import initialize, run
 
@@ -14,6 +15,7 @@ __all__ = [
     "CoreEngine",
     "EventBus",
     "ModuleManager",
+    "Scheduler",
     "ServiceRegistry",
     "get_logger",
     "initialize",

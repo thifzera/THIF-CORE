@@ -1,21 +1,28 @@
 from __future__ import annotations
 
+from enum import Enum
 from pathlib import Path
 
 from .config import ConfigManager
 from .events import EventBus
 from .logger import get_logger
 from .module_manager import ModuleManager
-from modules.voice.module import VoiceModule
-from modules.weather.module import WeatherModule
-from modules.system.module import SystemModule
-from modules.speech.module import SpeechModule
+from .scheduler import Scheduler
+
+
+class EngineState(Enum):
+    NOT_INITIALIZED = "not_initialized"
+    INITIALIZED = "initialized"
+    RUNNING = "running"
+    STOPPED = "stopped"
+    SHUTDOWN = "shutdown"
+    ERROR = "error"
 
 
 class CoreEngine:
     """Main runtime orchestrator for THIF CORE."""
 
-    def __init__(self, config_path: str | Path | None = None) -> None:
+    def __init__(self, config_path: str | Path | None = None, module_manager: ModuleManager | None = None) -> None:
         self.config_manager = ConfigManager(config_path=config_path)
         self.logger = get_logger(
             name="thif_core",
@@ -23,34 +30,37 @@ class CoreEngine:
             level=self.config_manager.get("logging.level", "INFO"),
         )
         self.event_bus = EventBus()
-        self.module_manager = ModuleManager()
-        self._register_default_modules()
+        self.module_manager = module_manager or ModuleManager()
+        self.scheduler = Scheduler()
         self.is_running = False
+        self.state = EngineState.NOT_INITIALIZED
 
-    def _register_default_modules(self) -> None:
-        """Register built-in modules for the engine."""
-        voice_module = VoiceModule()
-        weather_module = WeatherModule()
-        system_module = SystemModule()
-        speech_module = SpeechModule()
-        self.module_manager.register_module(voice_module)
-        self.module_manager.register_module(weather_module)
-        self.module_manager.register_module(system_module)
-        self.module_manager.register_module(speech_module)
-        self.module_manager.enable_module(voice_module.name)
-        self.module_manager.enable_module(weather_module.name)
-        self.module_manager.enable_module(system_module.name)
-        self.module_manager.enable_module(speech_module.name)
+    def initialize(self) -> None:
+        """Initialize engine resources and prepare for startup."""
+        if self.state != EngineState.NOT_INITIALIZED:
+            return
+
+        self.logger.info("Initializing THIF CORE engine")
+        self.state = EngineState.INITIALIZED
+
+    def _log_boot_banner(self) -> None:
+        """Log the THIF boot banner using the application logger."""
+        self.logger.info("=== NÚCLEO THIF ===")
 
     def start(self) -> None:
         """Start the engine and all enabled modules."""
         if self.is_running:
             return
 
+        if self.state == EngineState.NOT_INITIALIZED:
+            self.initialize()
+
         self.logger.info("Starting THIF CORE engine")
+        self._log_boot_banner()
+        self.scheduler.start()
         self.is_running = True
-        self.event_bus.publish("engine.started", {"engine": self})
-        self.module_manager.start_all(engine=self)
+        self.state = EngineState.RUNNING
+        self.module_manager.boot(engine=self)
 
     def stop(self) -> None:
         """Stop the engine and all started modules."""
@@ -59,8 +69,22 @@ class CoreEngine:
 
         self.logger.info("Stopping THIF CORE engine")
         self.module_manager.stop_all()
+        self.scheduler.stop()
         self.event_bus.publish("engine.stopped", {"engine": self})
         self.is_running = False
+        self.state = EngineState.STOPPED
+
+    def shutdown(self) -> None:
+        """Shutdown the engine and release all resources."""
+        if self.state == EngineState.SHUTDOWN:
+            return
+
+        self.stop()
+        self.state = EngineState.SHUTDOWN
+
+    def status(self) -> EngineState:
+        """Return the current engine lifecycle state."""
+        return self.state
 
     def run(self) -> None:
         """Run the engine loop until a shutdown condition occurs."""
