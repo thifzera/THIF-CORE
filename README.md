@@ -1,3 +1,0 @@
-# THIF CORE
-
-Projeto base.
