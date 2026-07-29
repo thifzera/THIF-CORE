@@ -1,3 +1,4 @@
+from .command_bus import CommandBus
 from .config import ConfigManager
 from .engine import CoreEngine
 from .events import EventBus
@@ -7,6 +8,7 @@ from .startup import initialize, run
 
 __all__ = [
     "BaseModule",
+    "CommandBus",
     "ConfigManager",
     "CoreEngine",
     "EventBus",
