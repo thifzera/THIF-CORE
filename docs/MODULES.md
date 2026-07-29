@@ -15,6 +15,7 @@ O projeto utiliza uma arquitetura modular, onde cada módulo encapsula uma respo
 - Weather Module: responsável por integrar dados meteorológicos.
 - Speech Module: responsável pela camada de fala e mensagens.
 - System Module: responsável por recursos e integração com o ambiente do sistema.
+- Diagnostics Module: responsável por expor informações de diagnóstico do núcleo, incluindo módulos, serviços, comandos e métricas básicas.
 
 ### Padrão de organização
 Cada módulo segue uma estrutura baseada em:
