@@ -10,6 +10,8 @@ from modules.system.module import SystemModule
 from modules.weather.module import WeatherModule
 from modules.voice.module import VoiceModule
 
+from .plugin_loader import PluginLoader
+
 
 def create_module_manager() -> ModuleManager:
     """Build a module manager with registered modules and boot order."""
@@ -32,6 +34,9 @@ def create_module_manager() -> ModuleManager:
     manager.enable_module(system_module.name)
     manager.enable_module(speech_module.name)
     manager.enable_module(diagnostics_module.name)
+
+    plugin_loader = PluginLoader()
+    plugin_loader.load_plugins(module_manager=manager, service_registry=manager.service_registry)
 
     manager.set_boot_order([
         voice_module.name,

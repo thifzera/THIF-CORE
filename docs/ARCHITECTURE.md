@@ -16,6 +16,7 @@ O núcleo é composto por um motor principal, um gerenciador de módulos, um sis
 - CommandBus: direciona comandos para handlers específicos.
 - ServiceRegistry: centraliza o registro de serviços.
 - Scheduler: executa tarefas periódicas em segundo plano.
+- PluginLoader: descobre e carrega plugins automaticamente a partir da pasta plugins.
 
 ## Scheduler
 
@@ -40,4 +41,26 @@ scheduler.schedule("heartbeat", 1.0, lambda: print("tick"))
 scheduler.start()
 # ...
 scheduler.stop()
+```
+
+## Plugin Loader
+
+### Funcionamento
+
+O PluginLoader explora a pasta plugins em busca de módulos Python, importa cada arquivo com importlib e tenta registrar seus objetos de plugin automaticamente no ModuleManager e no ServiceRegistry.
+
+### Ciclo de Vida
+
+1. O loader é instanciado durante o startup.
+2. Ele descobre os arquivos Python presentes em plugins/.
+3. Cada plugin válido é carregado com tolerância a erros.
+4. Plugins inválidos são ignorados e seu erro é registrado no logger.
+
+### Exemplos
+
+```py
+from core.plugin_loader import PluginLoader
+
+loader = PluginLoader()
+loader.load_plugins()
 ```
