@@ -13,10 +13,10 @@ class DemoModule(BaseModule):
         self.started = False
         self.stopped = False
 
-    def start(self, engine: CoreEngine | None = None) -> None:
+    def initialize(self, engine: CoreEngine | None = None) -> None:
         self.started = True
 
-    def stop(self) -> None:
+    def shutdown(self) -> None:
         self.stopped = True
 
 
@@ -26,7 +26,7 @@ class FoundationTests(unittest.TestCase):
         manager = ConfigManager(config_path=config_path)
 
         self.assertEqual(manager.get("application"), "THIF CORE")
-        self.assertEqual(manager.get("version"), "1.0.0-alpha")
+        self.assertEqual(manager.get("version"), "1.0.0-alpha.2")
         self.assertEqual(manager.get("logging.level", "INFO"), "INFO")
 
     def test_event_bus_delivers_payload_to_subscribers(self) -> None:

@@ -20,8 +20,8 @@ def main() -> int:
 
     engine = initialize(config_path=args.config)
     engine.start()
-    print(f"{engine.config_manager.get('application')} started")
-    print("Pressione Ctrl+C para parar.")
+    engine.logger.info("%s started", engine.config_manager.get("application"))
+    engine.logger.info("Pressione Ctrl+C para parar.")
 
     try:
         engine.run()
