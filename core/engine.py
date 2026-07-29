@@ -7,6 +7,9 @@ from .events import EventBus
 from .logger import get_logger
 from .module_manager import ModuleManager
 from modules.voice.module import VoiceModule
+from modules.weather.module import WeatherModule
+from modules.system.module import SystemModule
+from modules.speech.module import SpeechModule
 
 
 class CoreEngine:
@@ -27,8 +30,17 @@ class CoreEngine:
     def _register_default_modules(self) -> None:
         """Register built-in modules for the engine."""
         voice_module = VoiceModule()
+        weather_module = WeatherModule()
+        system_module = SystemModule()
+        speech_module = SpeechModule()
         self.module_manager.register_module(voice_module)
+        self.module_manager.register_module(weather_module)
+        self.module_manager.register_module(system_module)
+        self.module_manager.register_module(speech_module)
         self.module_manager.enable_module(voice_module.name)
+        self.module_manager.enable_module(weather_module.name)
+        self.module_manager.enable_module(system_module.name)
+        self.module_manager.enable_module(speech_module.name)
 
     def start(self) -> None:
         """Start the engine and all enabled modules."""
